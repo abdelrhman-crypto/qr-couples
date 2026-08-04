@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 from flask import Flask, render_template, request, redirect, url_for
 import qrcode
 
@@ -10,7 +11,17 @@ app.config['QR_FOLDER'] = os.path.join('static', 'qrcodes')
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['QR_FOLDER'], exist_ok=True)
 
-database = {}
+DB_FILE = 'database.json'
+
+def load_db():
+    if os.path.exists(DB_FILE):
+        with open(DB_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    return {}
+
+def save_db(data):
+    with open(DB_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False, indent=4)
 
 @app.route('/')
 def admin_panel():
@@ -20,10 +31,9 @@ def admin_panel():
 def create_memory():
     page_id = str(uuid.uuid4())[:8]
     
-    bg_type = request.form.get('bg_type', 'color') # نوع الخلفية (لون أم صورة)
+    bg_type = request.form.get('bg_type', 'color')
     bg_color = request.form.get('bg_color', '#fff5f5')
     
-    # رفع صورة الخلفية إذا تم اختيار رفع صورة
     bg_image_url = None
     if bg_type == 'image':
         bg_file = request.files.get('bg_image')
@@ -32,7 +42,6 @@ def create_memory():
             bg_file.save(os.path.join(app.config['UPLOAD_FOLDER'], bg_filename))
             bg_image_url = f"/static/uploads/{bg_filename}"
 
-    # رفع الأغنية
     song_file = request.files.get('song')
     song_path = None
     if song_file and song_file.filename != '':
@@ -40,7 +49,6 @@ def create_memory():
         song_file.save(os.path.join(app.config['UPLOAD_FOLDER'], song_filename))
         song_path = f"/static/uploads/{song_filename}"
 
-    # رفع الميديا (صور أو فيديوهات) والنصوص
     media_files = request.files.getlist('media')
     texts = request.form.getlist('texts')
     
@@ -51,7 +59,6 @@ def create_memory():
             file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(file_path)
             
-            # تحديد نوع الملف (صورة أم فيديو)
             ext = file.filename.split('.')[-1].lower()
             is_video = ext in ['mp4', 'webm', 'ogg', 'mov']
             
@@ -63,13 +70,16 @@ def create_memory():
                 "text": text
             })
 
-    database[page_id] = {
+    # تحميل قاعدة البيانات والحفظ فيها بشكل دائم
+    db = load_db()
+    db[page_id] = {
         "bg_type": bg_type,
         "bg_color": bg_color,
         "bg_image_url": bg_image_url,
         "song_url": song_path,
         "moments": moments
     }
+    save_db(db)
 
     generate_qr(page_id)
     return redirect(url_for('show_result', page_id=page_id))
@@ -87,13 +97,13 @@ def show_result(page_id):
 
 @app.route('/p/<page_id>')
 def show_couple_page(page_id):
-    data = database.get(page_id)
+    db = load_db()
+    data = db.get(page_id)
     if not data:
         return "الصفحة غير موجودة", 404
     return render_template('couple.html', data=data)
 
 def generate_qr(page_id):
-    # بيجيب رابط الموقع الأونلاين أوتوماتيك
     domain = request.host_url.rstrip('/')
     target_url = f"{domain}/p/{page_id}"
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=2)
