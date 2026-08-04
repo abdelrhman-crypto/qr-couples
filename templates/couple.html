@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Memories ❤️</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Tajawal', sans-serif;
+            {% if data.bg_type == 'image' and data.bg_image_url %}
+                background: url('{{ data.bg_image_url }}') no-repeat center center fixed;
+                background-size: cover;
+            {% else %}
+                background-color: {{ data.bg_color }};
+            {% endif %}
+        }
+    </style>
+</head>
+<body class="min-h-screen pt-8 pb-12 text-gray-800">
+
+    <!-- مشغل الموسيقى -->
+    {% if data.song_url %}
+    <div class="max-w-md mx-auto px-6 mb-8">
+        <div class="bg-white/85 backdrop-blur-md p-3 rounded-full shadow-lg flex items-center justify-center border border-white/50">
+            <audio controls class="w-full h-8">
+                <source src="{{ data.song_url }}" type="audio/mpeg">
+            </audio>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- عرض الصور والفيديوهات والنصوص -->
+    <main class="max-w-md mx-auto px-4 space-y-8">
+        {% for moment in data.moments %}
+        <div class="bg-white/95 backdrop-blur-sm rounded-3xl overflow-hidden shadow-xl border border-gray-100">
+            
+            {% if moment.is_video %}
+                <video controls class="w-full h-80 object-cover bg-black">
+                    <source src="{{ moment.url }}">
+                    متصفحك لا يدعم تشغيل الفيديو.
+                </video>
+            {% else %}
+                <img src="{{ moment.url }}" class="w-full h-80 object-cover">
+            {% endif %}
+
+            <div class="p-6 text-center">
+                <p class="text-lg font-semibold leading-relaxed text-gray-800">{{ moment.text }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </main>
+
+</body>
+</html>

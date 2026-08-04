@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة إنشاء صفحة كابلز</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 font-['Cairo'] p-6">
+    <div class="max-w-2xl mx-auto bg-white p-8 rounded-2xl shadow-md">
+        <h1 class="text-2xl font-bold text-center mb-6 text-rose-600">لوحة إنشاء صفحة جديدة ❤️</h1>
+        
+        <form action="/create" method="POST" enctype="multipart/form-data" class="space-y-4">
+
+            <!-- إعدادات الخلفية -->
+            <div class="border p-4 rounded-xl bg-gray-50 space-y-3">
+                <label class="block font-semibold">تخصيص الخلفية:</label>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="bg_type" value="color" checked onclick="toggleBgInput('color')"> لون خلفية
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="bg_type" value="image" onclick="toggleBgInput('image')"> رفع صورة خلفية 🖼️
+                    </label>
+                </div>
+
+                <div id="bg-color-picker">
+                    <label class="block text-sm mb-1">اختر لون الخلفية:</label>
+                    <input type="color" name="bg_color" value="#fff5f5" class="w-full h-10 border rounded-lg p-1 cursor-pointer">
+                </div>
+
+                <div id="bg-image-picker" class="hidden">
+                    <label class="block text-sm mb-1">ارفع صورة الخلفية من جهازك:</label>
+                    <input type="file" name="bg_image" accept="image/*" class="w-full border p-2 rounded-lg bg-white">
+                </div>
+            </div>
+
+            <!-- الأغنية -->
+            <div>
+                <label class="block mb-1 font-semibold">الأغنية (ملف MP3):</label>
+                <input type="file" name="song" accept="audio/*" class="w-full border p-2 rounded-lg">
+            </div>
+
+            <hr class="my-4">
+            
+            <!-- الصور والفيديوهات -->
+            <h3 class="font-bold text-lg">الصور والفيديوهات والنصوص:</h3>
+            <div id="moments-container" class="space-y-4">
+                <div class="border p-4 rounded-xl bg-gray-50">
+                    <label class="block mb-1 font-semibold">الملف 1 (صورة أو فيديو MP4):</label>
+                    <input type="file" name="media" accept="image/*,video/*" required class="w-full border p-2 rounded-lg mb-2 bg-white">
+                    
+                    <label class="block mb-1 font-semibold">الكلام أو الوصف 1 (يدعم الإيموجي ✨):</label>
+                    <textarea name="texts" placeholder="اكتب النص هنا... ✨❤️" required class="w-full border p-2 rounded-lg" rows="2"></textarea>
+                </div>
+            </div>
+
+            <button type="button" onclick="addMoment()" class="w-full bg-gray-200 text-gray-800 py-2 rounded-lg font-semibold hover:bg-gray-300">
+                + إضافة (صورة / فيديو) آخر
+            </button>
+
+            <button type="submit" class="w-full bg-rose-600 text-white py-3 rounded-lg font-bold text-lg hover:bg-rose-700 shadow-lg">
+                إنشاء الصفحة وتوليد QR Code 🎉
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function toggleBgInput(type) {
+            if (type === 'color') {
+                document.getElementById('bg-color-picker').classList.remove('hidden');
+                document.getElementById('bg-image-picker').classList.add('hidden');
+            } else {
+                document.getElementById('bg-color-picker').classList.add('hidden');
+                document.getElementById('bg-image-picker').classList.remove('hidden');
+            }
+        }
+
+        let count = 1;
+        function addMoment() {
+            count++;
+            const container = document.getElementById('moments-container');
+            const div = document.createElement('div');
+            div.className = "border p-4 rounded-xl bg-gray-50";
+            div.innerHTML = `
+                <label class="block mb-1 font-semibold">الملف ${count} (صورة أو فيديو MP4):</label>
+                <input type="file" name="media" accept="image/*,video/*" required class="w-full border p-2 rounded-lg mb-2 bg-white">
+                
+                <label class="block mb-1 font-semibold">الكلام أو الوصف ${count}:</label>
+                <textarea name="texts" placeholder="اكتب النص هنا... ✨❤️" required class="w-full border p-2 rounded-lg" rows="2"></textarea>
+            `;
+            container.appendChild(div);
+        }
+    </script>
+</body>
+</html>
