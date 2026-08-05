@@ -20,15 +20,11 @@
 </head>
 <body class="min-h-screen pt-8 pb-12 text-gray-800">
 
-    <!-- مشغل الموسيقى -->
+    <!-- مشغل الموسيقى (مخفي كلياً ويشتغل تلقائياً عند أول لمسة) -->
     {% if data.song_url %}
-    <div class="max-w-md mx-auto px-6 mb-8">
-        <div class="bg-white/85 backdrop-blur-md p-3 rounded-full shadow-lg flex items-center justify-center border border-white/50">
-            <audio controls class="w-full h-8">
-                <source src="{{ data.song_url }}" type="audio/mpeg">
-            </audio>
-        </div>
-    </div>
+        <audio id="bgMusic" loop preload="auto" style="display: none;">
+            <source src="{{ data.song_url }}" type="audio/mpeg">
+        </audio>
     {% endif %}
 
     <!-- عرض الصور والفيديوهات والنصوص -->
@@ -52,5 +48,20 @@
         {% endfor %}
     </main>
 
+    <script>
+        // تشغيل الموسيقى فور تفاعل المستخدم مع الصفحة
+        function playAudio() {
+            const audio = document.getElementById('bgMusic');
+            if (audio) {
+                audio.play().catch(function(error) {
+                    console.log("Autoplay blocked by browser:", error);
+                });
+            }
+        }
+
+        // الاستماع لأول ضغطة أو لمسة على الشاشة
+        document.addEventListener('click', playAudio, { once: true });
+        document.addEventListener('touchstart', playAudio, { once: true });
+    </script>
 </body>
 </html>
