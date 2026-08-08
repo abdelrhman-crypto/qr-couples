@@ -1,0 +1,16 @@
+{
+    "ahmed_sara": {
+        "custom_name": "ahmed_sara",
+        "bg_type": "color",
+        "bg_color": "#fff5f5",
+        "bg_image_url": null,
+        "song_url": "/static/uploads/ahmed_sara_Angham - Mesh Habibi Bs - أنغام - مش حبيبي بس - تتر مسلسل اتنين غيرنا.mp3",
+        "moments": [
+            {
+                "url": "/static/uploads/ahmed_sara_0_💍🤍.jpg",
+                "is_video": false,
+                "text": "بحبك وحشتيني"
+            }
+        ]
+    }
+}

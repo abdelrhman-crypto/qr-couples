@@ -1,6 +1,7 @@
 import os
 import uuid
 import json
+import re
 from flask import Flask, render_template, request, redirect, url_for
 import qrcode
 
@@ -23,13 +24,25 @@ def save_db(data):
     with open(DB_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
 
+def sanitize_filename(name):
+    # تنظيف الاسم المخصص من المسافات والرموز غير المسموحة
+    name = name.strip().replace(' ', '_')
+    name = re.sub(r'[^\w\-]', '', name)
+    return name if name else str(uuid.uuid4())[:8]
+
 @app.route('/')
 def admin_panel():
     return render_template('admin.html')
 
 @app.route('/create', methods=['POST'])
 def create_memory():
-    page_id = str(uuid.uuid4())[:8]
+    # استقبال اسم العميل / اسم الصفحة المخصص
+    custom_name = request.form.get('custom_name', '').strip()
+    
+    if custom_name:
+        page_id = sanitize_filename(custom_name)
+    else:
+        page_id = str(uuid.uuid4())[:8]
     
     bg_type = request.form.get('bg_type', 'color')
     bg_color = request.form.get('bg_color', '#fff5f5')
@@ -70,9 +83,10 @@ def create_memory():
                 "text": text
             })
 
-    # تحميل قاعدة البيانات والحفظ فيها بشكل دائم
+    # حفظ الصفحة في قاعدة البيانات
     db = load_db()
     db[page_id] = {
+        "custom_name": custom_name,
         "bg_type": bg_type,
         "bg_color": bg_color,
         "bg_image_url": bg_image_url,
@@ -88,9 +102,11 @@ def create_memory():
 def show_result(page_id):
     return f'''
     <div style="text-align:center; font-family:sans-serif; padding:50px;">
-        <h2>✅ تم إنشاء الصفحة بنجاح!</h2>
+        <h2>✅ تم إنشاء الصفحة وتسمية الـ QR بنجاح!</h2>
+        <p><b>معرف الصفحة / اسم الصورة:</b> <code>{page_id}</code></p>
         <p><b>رابط الصفحة:</b> <a href="/p/{page_id}" target="_blank">اضغط هنا لمعاينة الصفحة</a></p>
         <img src="/static/qrcodes/{page_id}.png" style="width:200px; border:1px solid #ccc; padding:10px;"><br><br>
+        <p><small>مسار صورة الـ QR المسجلة: <code>static/qrcodes/{page_id}.png</code></small></p><br>
         <a href="/">+ إنشاء صفحة عميل جديد</a>
     </div>
     '''
@@ -110,6 +126,7 @@ def generate_qr(page_id):
     qr.add_data(target_url)
     qr.make(fit=True)
     img = qr.make_image(fill_color="black", back_color="white")
+    # حفظ صورة الـ QR باسم العميل المخصص
     img.save(os.path.join(app.config['QR_FOLDER'], f"{page_id}.png"))
 
 if __name__ == '__main__':

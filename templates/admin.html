@@ -12,6 +12,13 @@
         
         <form action="/create" method="POST" enctype="multipart/form-data" class="space-y-4">
 
+            <!-- اسم العميل / اسم ملف الـ QR Code -->
+            <div class="border p-4 rounded-xl bg-rose-50 space-y-2">
+                <label class="block font-bold text-rose-800">اسم العميل / اسم الصفحة (لتسمية الـ QR Code والملفات):</label>
+                <input type="text" name="custom_name" placeholder="مثال: ahmed_sara أو client_01" required class="w-full border p-2 rounded-lg bg-white font-sans text-left" dir="ltr">
+                <p class="text-xs text-gray-500">ملاحظة: يفضل كتابة الاسم بالإنجليزي بدون مسافات (استخدم _ أو -) لضمان عمل الرابط وحفظ الصورة بشكل صحيح.</p>
+            </div>
+
             <!-- إعدادات الخلفية -->
             <div class="border p-4 rounded-xl bg-gray-50 space-y-3">
                 <label class="block font-semibold">تخصيص الخلفية:</label>
